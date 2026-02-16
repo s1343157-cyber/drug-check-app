@@ -6,6 +6,8 @@ import fs from "fs";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import basicAuth from "express-basic-auth";
+
 
 // ★ ここに追加
 function normalizeDrugName(name) {
@@ -25,10 +27,18 @@ const app = express();
 let activeRequests = 0;
 const MAX_CONCURRENT = 3; // 同時実行上限
 
-app.use(express.static("public"));
-app.use(express.json());
+
 app.use(helmet());
 app.use(cors());
+app.use(express.json());
+app.use(
+  basicAuth({
+    users: { admin: process.env.APP_PASSWORD },
+    challenge: true,
+  })
+);
+
+app.use(express.static("public"));
 
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
