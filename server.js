@@ -24,6 +24,8 @@ function normalizeDrugName(name) {
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 let activeRequests = 0;
 const MAX_CONCURRENT = 3; // 同時実行上限
 
