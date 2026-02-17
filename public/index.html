@@ -68,13 +68,20 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      text-align: left;   /* ← 追加 */
     }
 
     .top-buttons {
       display: flex;
-      justify-content: flex-start;
       gap: 20px;
       margin-top: 20px;
+      margin-left: 0;      /* ← 追加 */
+      padding-left: 0;     /* ← 追加 */
+    }
+
+    #analyzeBtn {
+      margin-top: 30px;
+      margin-left: 0;
     }
 
     .preview-img {
@@ -107,8 +114,6 @@
   
   </div>
 
-  <br>
-
   <!-- 解析ボタン -->
   <button id="analyzeBtn">解析する</button>
 
@@ -123,8 +128,6 @@
     style="display:none;"
   />
 
-
-　<br><br>
 
   <div id="previewContainer" style="margin-top:20px;"></div>
 
