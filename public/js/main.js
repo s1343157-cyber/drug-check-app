@@ -63,14 +63,6 @@
     renderPreview();
   }
 
-　function openCamera() {
-  　const input = document.getElementById("imageInput");
-
-　  if (!input) {
-   　 alert("imageInputが見つかりません");
-   　 return;
- 　 }
-
  　 input.setAttribute("capture", "environment");
  　 input.click();
 　}
@@ -201,33 +193,54 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  const imageInput = document.getElementById("imageInput");
-  if (imageInput) {
-    imageInput.addEventListener("change", handleFileSelect);
+  function isMobile() {
+    return /iPhone|Android.+Mobile/.test(navigator.userAgent);
   }
+
+  const cameraInput = document.getElementById("cameraInput");
+  const fileInput = document.getElementById("fileInput");
 
   const cameraBtn = document.getElementById("cameraBtn");
-  if (cameraBtn) {
-    cameraBtn.addEventListener("click", openCamera);
+  const selectImageBtn = document.getElementById("selectImageBtn");
+  const analyzeBtn = document.getElementById("analyzeBtn");
+  const recheckBtn = document.getElementById("recheckBtn");
+
+  // 🔹 ファイル選択時の処理
+  if (cameraInput) {
+    cameraInput.addEventListener("change", handleFileSelect);
   }
 
-  const selectImageBtn = document.getElementById("selectImageBtn");
-  if (selectImageBtn) {
-    selectImageBtn.addEventListener("click", function () {
-      imageInput.click();
+  if (fileInput) {
+    fileInput.addEventListener("change", handleFileSelect);
+  }
+
+  // 🔹 PCならカメラボタンを無効化
+  if (!isMobile() && cameraBtn) {
+    cameraBtn.disabled = true;
+  }
+
+  // 📸 カメラボタン
+  if (cameraBtn) {
+    cameraBtn.addEventListener("click", function () {
+      if (!this.disabled) {
+        cameraInput.click();
+      }
     });
   }
 
-  const analyzeBtn = document.getElementById("analyzeBtn");
+  // 🖼 画像選択ボタン
+  if (selectImageBtn) {
+    selectImageBtn.addEventListener("click", function () {
+      fileInput.click();
+    });
+  }
+
   if (analyzeBtn) {
     analyzeBtn.addEventListener("click", uploadImage);
   }
 
-  const recheckBtn = document.getElementById("recheckBtn");
   if (recheckBtn) {
     recheckBtn.addEventListener("click", recheckDrugs);
   }
 
 });
-
-

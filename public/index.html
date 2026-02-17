@@ -119,16 +119,23 @@
   <button id="analyzeBtn">解析する</button>
 
 
-　<!-- 実際のファイル入力（非表示） -->
-　<input
+　<!-- カメラ専用（スマホのみ使用） -->
+  <input
     type="file"
-    id="imageInput"
+    id="cameraInput"
     accept="image/*"
     capture="environment"
-    multiple
     style="display:none;"
   />
 
+  <!-- 画像選択専用 -->
+  <input
+    type="file"
+    id="fileInput"
+    accept="image/*"
+    multiple
+    style="display:none;"
+  />
 
   <div id="previewContainer" style="margin-top:20px;"></div>
 
