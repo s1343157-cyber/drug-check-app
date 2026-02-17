@@ -63,10 +63,6 @@
     renderPreview();
   }
 
- 　 input.setAttribute("capture", "environment");
- 　 input.click();
-　}
-
   async function uploadImage() {
 
     if (!selectedFiles.length) {
