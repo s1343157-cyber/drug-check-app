@@ -22,6 +22,56 @@ function normalizeDrugName(name) {
     .toLowerCase();
 }
 
+function levenshtein(a, b) {
+  if (!a || !b) return 99;
+
+  const matrix = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+function isSafeMatch(input, product, generic) {
+  if (!input) return false;
+
+  // ① 完全一致
+  if (input === product || input === generic) return true;
+
+  // ② 前方一致（3文字以上）
+  if (input.length >= 3) {
+    if (product.startsWith(input)) return true;
+    if (generic.startsWith(input)) return true;
+  }
+
+  // ③ レーベンシュタイン距離 1以内
+  if (levenshtein(input, product) <= 1) return true;
+  if (levenshtein(input, generic) <= 1) return true;
+
+  return false;
+}
+
+
 const app = express();
 
 app.set("trust proxy", 1);
@@ -169,29 +219,6 @@ app.post("/ocr", upload.single("image"), async (req, res) => {
  　　 extractedDrugs = JSON.parse(ocrText);
   　　console.log("🧠 OCR抽出:", extractedDrugs);
 
- 　　 // 🔽 ここから改良ロジック
-
- 　　 const validatedDrugs = extractedDrugs.filter(inputDrug => {
- 　　   const normalizedInput = normalizeDrugName(inputDrug);
-
-    　　return excelData.some(row => {
-     　　 const product = normalizeDrugName(row["商品名"]);
-     　　 const generic = normalizeDrugName(row["一般名"]);
-
-     　　 return (
-     　　   product.includes(normalizedInput) ||
-     　　   normalizedInput.includes(product) ||
-     　　   generic.includes(normalizedInput) ||
-     　　   normalizedInput.includes(generic)
-     　　 );
-   　　 });
-  　　});
-
-  　　console.log("✅ Excel登録薬のみ:", validatedDrugs);
-
-  　　extractedDrugs = validatedDrugs;
-
-  　　// 🔼 ここまで改良ロジック
 
 　　} catch (e) {
 
@@ -212,12 +239,11 @@ app.post("/ocr", upload.single("image"), async (req, res) => {
   　　　const product = normalizeDrugName(row["商品名"]);
   	const generic = normalizeDrugName(row["一般名"]);
 
-  	return (
-    	　product.includes(normalizedInput) ||
-    	　normalizedInput.includes(product) ||
-    	　generic.includes(normalizedInput) ||
-    	　normalizedInput.includes(generic)
-  	);
+     　 return isSafeMatch(
+          normalizedInput,
+          product,
+          generic
+        );
 　　　});
 
       if (match && match["休薬期間"] != null) {
@@ -267,11 +293,10 @@ app.post("/recheck", express.json(), (req, res) => {
         const product = normalizeDrugName(row["商品名"]);
         const generic = normalizeDrugName(row["一般名"]);
 
-        return (
-          product.includes(normalizedInput) ||
-          normalizedInput.includes(product) ||
-          generic.includes(normalizedInput) ||
-          normalizedInput.includes(generic)
+     　 return isSafeMatch(
+          normalizedInput,
+          product,
+          generic
         );
       });
 
