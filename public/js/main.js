@@ -175,12 +175,36 @@
     let html = "<div class='warning-title'>⚠ 休薬推奨薬剤</div>";
 
     uniqueMatched.forEach(drug => {
+
+      let componentHtml = "";
+
+      if (drug["配合成分"] && drug["配合成分"].length > 0) {
+
+        componentHtml += "<div class='components'>配合成分:<ul>";
+
+        drug["配合成分"].forEach(c => {
+          componentHtml += `<li>${c.name} ${c.mg} mg</li>`;
+        });
+
+        componentHtml += "</ul></div>";
+      }
+
       html += `
         <div class="card">
-          ${drug.商品名}は${drug.休薬期間}より休薬が推奨されています。
+          <div class="drug-name">
+            ${drug.商品名}
+          </div>
+
+          <div>
+            ${drug.休薬期間}日前より休薬が推奨されています
+          </div>
+
+          ${componentHtml}
+
         </div>
       `;
     });
+
 
     document.getElementById("result").innerHTML = html;
   }

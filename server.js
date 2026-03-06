@@ -114,6 +114,21 @@ function loadExcel() {
 
 const excelData = loadExcel();
 
+function getCombinationComponents(row) {
+  const components = [];
+
+  if (row["分解後成分名①"]) {
+    components.push(row["分解後成分名①"]);
+  }
+
+  if (row["分解後成分名②"]) {
+    components.push(row["分解後成分名②"]);
+  }
+
+  return components;
+}
+
+
 app.get("/", (req, res) => {
   res.send("Drug Check API running");
 });
@@ -246,13 +261,25 @@ app.post("/ocr", upload.single("image"), async (req, res) => {
         );
 　　　});
 
-      if (match && match["休薬期間"] != null) {
-        matchedDrugs.push({
-          商品名: drug,
-          休薬期間: match["休薬期間"]
-        });
+      if (match) {
+
+        const result = {
+         商品名: drug
+        };
+
+        if (match["休薬期間"] != null) {
+          result["休薬期間"] = match["休薬期間"];
+        }
+
+        const components = getCombinationComponents(match);
+
+        if (components.length > 0) {
+           result["配合成分"] = components;
+        }
+
+        matchedDrugs.push(result);
       }
-    }
+
 
     return res.json({
       extractedDrugs,
@@ -300,13 +327,25 @@ app.post("/recheck", express.json(), (req, res) => {
         );
       });
 
-      if (match && match["休薬期間"] != null) {
-        matchedDrugs.push({
-          商品名: drug,
-          休薬期間: match["休薬期間"]
-        });
+      if (match) {
+
+        const result = {
+          商品名: drug
+        };
+
+        if (match["休薬期間"] != null) {
+          result["休薬期間"] = match["休薬期間"];
+        }
+
+        const components = getCombinationComponents(match);
+
+        if (components.length > 0) {
+          result["配合成分"] = components;
+        }
+
+        matchedDrugs.push(result);
       }
-    }
+
 
     return res.json({
       matchedDrugs
